@@ -1,0 +1,24 @@
+﻿@page "/customers"
+@using WebAppWeb.Models
+@using WebAppWeb.Services
+@inject CustomerService customerService
+
+<h3>Customers</h3>
+<ul>
+    @if (customers!=null)
+    @foreach (var customer in customers)
+    {
+        <li>@customer.FirstName</li>
+    }
+</ul>
+
+@code {
+    private List<Customer> customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await customerService.GetAllCustomersAsync();
+
+        customers = result;
+    }
+}

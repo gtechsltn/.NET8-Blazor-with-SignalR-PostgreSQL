@@ -1,0 +1,68 @@
+﻿@page "/signalr"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+
+<h3>SignalR in Blazor Server</h3>
+
+<button class="btn btn-primary" @onclick="SendMessageToClients">Click me</button>
+
+<p>@message</p>
+
+@code {
+    private HubConnection? hubConnection;
+    private string message = "Waiting for message...";
+
+    // Initialize and start SignalR connection
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl("https://localhost:7050/notificationHub")
+                .Build();
+
+            hubConnection.On<string>("ReceiveMessage", (msg) =>
+            {
+                InvokeAsync(() =>
+                {
+                    message = msg;
+                    StateHasChanged();
+                });
+            });
+
+            // Start the connection
+            await hubConnection.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error connecting to SignalR Hub: {ex.Message}");
+        }
+    }
+
+    // Send message to all clients through SignalR hub
+    // Send message to all clients through SignalR Hub
+    private async Task SendMessageToClients()
+    {
+        if (hubConnection is not null)
+        {
+            try
+            {
+                await hubConnection.SendAsync("SendMessage", "Hello from Blazor!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending message: {ex.Message}");
+            }
+        }
+    }
+
+   
+    // Dispose connection when the component is disposed
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

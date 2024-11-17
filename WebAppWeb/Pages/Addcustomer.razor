@@ -1,0 +1,37 @@
+﻿@page "/add-customer"
+@using Microsoft.AspNetCore.Components.Forms
+@using WebAppWeb.Models
+@using WebAppWeb.Services
+@inject CustomerService customerService
+@inject NavigationManager NavigationManager
+
+<h3>Add Customer</h3>
+
+<EditForm Model="@newCustomer" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label for="name">First Name:</label>
+        <InputText id="name" @bind-Value="newCustomer.FirstName" />
+    </div>
+    <div>
+        <label for="name">Last Name:</label>
+        <InputText id="name" @bind-Value="newCustomer.LastName" />
+    </div>
+    <div>
+        <label for="name">Address:</label>
+        <InputText id="name" @bind-Value="newCustomer.Address" />
+    </div>
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code {
+    private NewCustomerModel newCustomer = new NewCustomerModel();
+
+    private async Task HandleValidSubmit()
+    {
+        await customerService.AddCustomersAsync(newCustomer);
+
+        NavigationManager.NavigateTo("/customers");
+    }
+}
